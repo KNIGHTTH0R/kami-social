@@ -316,8 +316,8 @@ if ($(window).scrollTop() >= ($(document).height() - $(window).height())*0.75){
             <form id="frmSearch">
             <h1>Your search here:</h1>
                 <input type="text" id="txtSearch" name="txtSearch" value="<?php echo $str; ?>"/><br/>
-                From: <input type="text" id="dateFrom" name="dateFrom" class="jdpicker"/>
-                To: <input type="text" id="dateTo" name="dateTo" class="jdpicker"/>
+                <!--From: <input type="text" id="dateFrom" name="dateFrom" class="jdpicker"/>
+                To: <input type="text" id="dateTo" name="dateTo" class="jdpicker"/> -->
                 <input type="submit" value="Search"/>
             </form>
         </div>
@@ -327,7 +327,7 @@ if ($(window).scrollTop() >= ($(document).height() - $(window).height())*0.75){
     </div>
 
     <section id="get-started">
-      <p>Henriette's Social Search</p>
+      <p>Kami's Social Search</p>
     </section>
     <br/>
     <div class="divPosts">
