@@ -6,14 +6,13 @@
 /* =global elements
 --------------------------------------------- */
 body {
-  color: #999;
   font: 14px/1.5em "Lucida Grande", Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-  width: 720px;
+  width: 96%;
   margin: 20px;
 }
 
-a:link, a:visited {
+a, a:visited {
   color: #3b5998;
   font-weight: bold;
   text-decoration: none;
@@ -28,6 +27,20 @@ h1 {
   font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 18px;
   font-weight: normal;
+}
+.div-tw-post {
+    width: 47%;
+    float: right;
+    left: 50%;
+    border-left: 1px solid #b3b3b3;
+    border-right: 1px solid #b3b3b3;
+    border-top: 1px solid #b3b3b3;
+}
+.div-fb-post {
+    width: 49%;
+    border-left: 1px solid #b3b3b3;
+  border-right: 1px solid #b3b3b3;
+  border-top: 1px solid #b3b3b3;
 }
 
 /* ------------------------------------------ */
@@ -94,7 +107,7 @@ header .tagline {
   background-color: #eee;
   background-image: -moz-linear-gradient(top, #fdfdfd, #eaebeb);
   background-image: -ms-linear-gradient(top, #fdfdfd, #eaebeb);
-  background-image: -o-linear-gradient(top, #fdfdfd, #eaebeb));
+  background-image: -o-linear-gradient(top, #fdfdfd, #eaebeb);
   background-image: -webkit-gradient(linear, left top, left bottom, from(#fdfdfd), to(#eaebeb));
   background-image: -webkit-linear-gradient(top, #fdfdfd, #eaebeb);
   background-image: linear-gradient(top, #fdfdfd, #eaebeb);
@@ -162,7 +175,8 @@ header .tagline {
 #get-started {
   background: url("../images/get-started-bg.jpg");
   border: 1px solid #353d4f;
-  height: 105px;
+  border-radius: 22px 22px 22px 22px;
+  /*height: 105px;*/
   text-align: center;
   text-shadow: 0 1px 0 rgba(0, 0, 0, .29);
   padding: 32px 0 0;
@@ -357,3 +371,100 @@ header .tagline {
 .clearfix {
   zoom: 1;
 }
+
+/* TESTING by Kami -------- */
+.divPosts {
+    color: #000000;
+}
+.lbl {
+    background-color: #3B5998;
+    border-radius: 22px 22px 22px 22px;
+    color: #FFFFFF;
+    display: inline-block;
+    font-weight: bold;
+    font-size: 15px;
+    border: 1px solid #454D64;
+    text-align: center;
+    width: 100%;
+}
+.lbl:hover {
+    background-color: lightblue;
+    color: black;
+    box-shadow: none;
+}
+.post-link {
+    font-size:12px; text-decoration:none;
+    color: blue;
+}
+.time {
+    text-decoration:none;
+    color: #353D4F;
+    font-style: italic;
+}
+.uinfo {
+    font-size: 15px;
+    border-left: 1px solid #ccc;
+    border-top: 1px solid #ccc;
+    width: 100%;
+}
+.lblhdr{
+    color:blue;
+    text-decoration: underline;
+}
+
+#divSearch {
+    font-size: 20px;
+    padding: 5px 20px 5px 20px;
+}
+
+.button-pretty, .addques-btn-save, .addques-btn-save, .addques-btn-cancel, .editques-btn-cancel, .editques-btn-save {
+    background-color: #FFA457;
+    border: 1px solid #EEB44F;
+    border-radius: 22px 22px 22px 22px;
+    box-shadow: -16px 16px 50px -1px #FCE2C1 inset;
+    color: #FFFFFF;
+    display: inline-block;
+    font-family: Trebuchet MS;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 10px 20px 10px 20px;
+    text-decoration: none;
+}
+.button-pretty:hover, .addques-btn-save:hover, .addques-btn-save:hover, .addques-btn-cancel:hover, .editques-btn-cancel:hover, .editques-btn-save:hover {
+    background-color: #FB6030;
+    color: #FFFFFF;
+    box-shadow: none;
+}
+.button-pretty:active, .addques-btn-save:active, .addques-btn-save:active, .addques-btn-cancel:active, .editques-btn-cancel:active, .editques-btn-save:active {
+    position: relative;
+    top: 1px;
+}
+.button-pretty[disabled], .button-pretty[disabled]:hover, .button-pretty[disabled]:active {
+    background-color: #DDDDDD;
+    border: medium none;
+}
+.ana-mention {
+    width: 40%;
+    min-width: 350px;
+    float: right;
+    border-left: 1px solid #FF0000;
+    border-right: 1px solid #FF0000;
+    border-bottom: 1px solid #FF0000;
+}
+.see-more {
+    color: #607EC5;
+    font-style: italic;
+    text-decoration: none;
+}
+#posts-container            { width:400px; border:1px solid #ccc; -webkit-border-radius:10px; -moz-border-radius:10px; }
+        .post                       { padding:5px 10px 5px 5px; min-height:65px; border-bottom:1px solid #ccc;}
+        .post:hover                 { background-color:#E7EBF2; }
+        a.post-title                { font-weight:bold; font-size:12px; text-decoration:none; }
+        a.post-title:hover          { text-decoration:underline; color:#900; }
+        a.post-more                 { color:#900; }
+        p.post-content              { font-size:10px; line-height:17px; padding-bottom:0; }
+        #load-more                  { background-color:#eee; color:#999; font-weight:bold; text-align:center; padding:10px 0; cursor:pointer; }
+        #load-more:hover            { color:#444; }
+        .activate                   { background:url(../images/spinnerz.gif) 140px 9px no-repeat #eee; }
+        .hidden                   { display: none; }
+        .highlight { background-color: yellow; font-weight:bold;}

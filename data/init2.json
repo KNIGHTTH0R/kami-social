@@ -1,0 +1,70 @@
+{
+  "data": [
+    {
+      "date": "August 19, 2004",
+      "fb": 5,
+      "tw": 6,
+      "volume": 11
+    },
+    {
+      "date": "September 9, 2004",
+      "fb": 2,
+      "tw": 6,
+      "volume": 8
+    },
+    {
+      "date": "September 29, 2004",
+      "fb": 1,
+      "tw": 0,
+      "volume": 1
+    },
+    {
+      "date": "October 19, 2004",
+      "fb": 15,
+      "tw": 2,
+      "volume": 17
+    },
+    {
+      "date": "November 8, 2004",
+      "fb": 0,
+      "tw": 0,
+      "volume": 0
+    },
+    {
+      "date": "November 29, 2004",
+      "fb": 1,
+      "tw": 1,
+      "volume": 2
+    },
+    {
+      "date": "December 17, 2004",
+      "fb": 2,
+      "tw": 35,
+      "volume": 37
+    }
+  ],
+  "summary": [
+    [
+      0,
+      11
+    ],
+    [
+      3,
+      37
+    ],
+    [
+      6,
+      76
+    ]
+  ],
+  "summaryTicks": [
+    [
+      0,
+      "August 19, 2004"
+    ],
+    [
+      6,
+      "2004"
+    ]
+  ]
+}

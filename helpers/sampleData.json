@@ -1,0 +1,10 @@
+{
+  "cols": [
+        {"id":"","label":"Date","pattern":"","type":"date"},
+        {"id":"","label":"Facebook","pattern":"","type":"number"},
+        {"id":"","label":"Twitter","pattern":"","type":"number"}
+      ],
+  "rows": [
+        {"c":[{"v":"\/Date(1238540400000)\/","f":null},{"v":5,"f":null},{"v":15,"f":null}]}
+      ]
+}

@@ -1,5 +1,4 @@
-<?php
-
+﻿<?php
 /**
  * This sample app is provided to kickstart your experience using Facebook's
  * resources for developers.  This sample app provides examples of several
@@ -10,18 +9,18 @@
 
 // Provides access to app specific values such as your app id and app secret.
 // Defined in 'AppInfo.php'
-require_once('AppInfo.php');
+require_once('./helpers/AppInfo.php');
 
 // Enforce https on production
 if (substr(AppInfo::getUrl(), 0, 8) != 'https://' && $_SERVER['REMOTE_ADDR'] != '127.0.0.1') {
   header('Location: https://'. $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']);
   exit();
-}
+} elseif ($_SERVER['REMOTE_ADDR'] != '127.0.0.1') {
+	$dataPath = "./data/";
+} else {$dataPath = "c:\\folder\\";}
 
 // This provides access to helper functions defined in 'utils.php'
-require_once('utils.php');
-
-
+require_once('./helpers/utils.php');
 /*****************************************************************************
  *
  * The content below provides examples of how to fetch Facebook data using the
@@ -32,52 +31,81 @@ require_once('utils.php');
  ****************************************************************************/
 
 require_once('sdk/src/facebook.php');
-
 $facebook = new Facebook(array(
   'appId'  => AppInfo::appID(),
   'secret' => AppInfo::appSecret(),
   'sharedSession' => true,
   'trustForwarded' => true,
 ));
+if(($_GET['txtSearch'])) $str = strip_tags( ($_GET['txtSearch']), '<b><a><ul><li><ol><em>' );
+$unix_from = $unix_to = '';
+if(($_REQUEST['dateFrom'])) {
+    $date_from = $_REQUEST['dateFrom'];
+    $unix_from = '&since='.strtotime($date_from);
+}
+if(($_REQUEST['dateTo'])) {
+    $date_to = $_REQUEST['dateTo'];
+    //$date_to = time() - 4*60*60;$unix_to = '&until='.($date_to);
+    $unix_to = '&until='.strtotime($date_to);
+}
+// Facebook pagination
+if(isset($_POST['hidLink'])) {
+    $link = ($_POST['hidLink']);
+    $link = substr($link, strpos($link, "/search"));
+}
+// Twitter pagination
+if(isset($_POST['hidSince'])) { // Previous
+    $since_id = ($_POST['hidSince']);
+} else $since_id = '0';
+if(isset($_POST['hidMax'])) { // Next
+    $max_id = ($_POST['hidMax']);
+} else $max_id = '0';
+//var_dump($since_id);var_dump($max_id);
+// Fetching FB posts
+if (isset($str) && $str!="") {
+try{
+    if(!isset($link)) {
+        // Until: Date_of_results < Until_date
+        // Since: Date_of_results > since_date (latest till since_date)
+        $link = '/search?limit=10&type=post&fields=id,message,from,link,picture,type&q=' . urlencode($str) . $unix_from . $unix_to;
+    } else {
+    }
+    $data = ($facebook->api($link));
+    $pubPosts = idx($data, 'data', array());
+    $paging = idx($data, 'paging', array());
+    $fp = fopen($dataPath. urlencode($str) . "_fb_page1", 'w');
+    fwrite($fp, serialize($pubPosts));
+    fclose($fp);
+} catch (Exception $e) {var_dump($e->getMessage());}
+} else {
+    $str = "";
+    //echo "No query";
+    //die();
+}
 
-$user_id = $facebook->getUser();
+//$user_id = $facebook->getUser();
+
 if ($user_id) {
   try {
     // Fetch the viewer's basic information
-    $basic = $facebook->api('/me');
+    //$basic = $facebook->api('/me');
   } catch (FacebookApiException $e) {
     // If the call fails we check if we still have a user. The user will be
     // cleared if the error is because of an invalid accesstoken
-    if (!$facebook->getUser()) {
-      header('Location: '. AppInfo::getUrl($_SERVER['REQUEST_URI']));
-      exit();
-    }
+    //if (!$facebook->getUser()) {
+    //  header('Location: '. AppInfo::getUrl($_SERVER['REQUEST_URI']));
+    //  exit();
+    //}
   }
-
-  // This fetches some things that you like . 'limit=*" only returns * values.
-  // To see the format of the data you are retrieving, use the "Graph API
-  // Explorer" which is at https://developers.facebook.com/tools/explorer/
-  $likes = idx($facebook->api('/me/likes?limit=4'), 'data', array());
-
-  // This fetches 4 of your friends.
-  $friends = idx($facebook->api('/me/friends?limit=4'), 'data', array());
-
-  // And this returns 16 of your photos.
-  $photos = idx($facebook->api('/me/photos?limit=16'), 'data', array());
-
-  // Here is an example of a FQL call that fetches all of your friends that are
-  // using this app
-  $app_using_friends = $facebook->api(array(
+  /*$app_using_friends = $facebook->api(array(
     'method' => 'fql.query',
     'query' => 'SELECT uid, name FROM user WHERE uid IN(SELECT uid2 FROM friend WHERE uid1 = me()) AND is_app_user = 1'
-  ));
+  ));*/
 }
-
 // Fetch the basic info of the app that they are using
 $app_info = $facebook->api('/'. AppInfo::appID());
-
 $app_name = idx($app_info, 'name', '');
-
+$item_count=0;
 ?>
 <!DOCTYPE html>
 <html xmlns:fb="http://ogp.me/ns/fb#" lang="en">
@@ -86,7 +114,9 @@ $app_name = idx($app_info, 'name', '');
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0, user-scalable=yes" />
 
     <title><?php echo he($app_name); ?></title>
+    <link rel="stylesheet" href="stylesheets/base.css" type="text/css" />
     <link rel="stylesheet" href="stylesheets/screen.css" media="Screen" type="text/css" />
+    <link rel="stylesheet" href="stylesheets/jdpicker.css" media="Screen" type="text/css" />
     <link rel="stylesheet" href="stylesheets/mobile.css" media="handheld, only screen and (max-width: 480px), only screen and (max-device-width: 480px)" type="text/css" />
 
     <!--[if IEMobile]>
@@ -105,63 +135,136 @@ $app_name = idx($app_info, 'name', '');
     <meta property="og:site_name" content="<?php echo he($app_name); ?>" />
     <meta property="og:description" content="My first app" />
     <meta property="fb:app_id" content="<?php echo AppInfo::appID(); ?>" />
-
+    <script type="text/javascript" src="/javascript/jquery.scrollTo-1.4.2.js"></script>
     <script type="text/javascript" src="/javascript/jquery-1.7.1.min.js"></script>
+    <script type="text/javascript" src="/javascript/jquery.highlight-4.js"></script>
+    <script type="text/javascript" src="/javascript/jquery.jdpicker.js"></script>
 
     <script type="text/javascript">
+      var PAGE = 1;
+      var AJAX = false;
+      
       function logResponse(response) {
         if (console && console.log) {
           console.log('The response was', response);
         }
       }
+      function prepareAjax(){
+      var loadMore = $('#load-more');
+            //load event / ajax
+            loadMore.click(function(){
+                //add the activate class and change the message
+                if (AJAX) {
+                    return;
+                }
+                loadMore.addClass('activate').text('Loading...');
+                AJAX = true;
+                //begin the ajax attempt
+                $.ajax({
+                    url: 'ajaxSearch.php',
+                    data: {
+                        'txtSearch': '<?php echo $str; ?>',
+                        //'hidMax': document.getElementById('hidMaxId').value,
+                        'hidLink': document.getElementById('hidLinkNext').value,
+                        'page': ++PAGE,
+                    },
+                    type: 'post',
+                    datatype : 'json',
+                    success: function(responseJSON) {
+                        var arrJson = $.parseJSON(responseJSON);
+                        loadMore.text('Load More');
+                        document.getElementById('ajax-posts').innerHTML += arrJson.output;
+                        document.getElementById('hidLinkNext').value = document.getElementById('hidLinkAjax'+ PAGE).value;
+                        highlighter('<?php echo $str;?>');
+                        prepareAjax();
+                        countItems();
+                    },
+                    error: function() {
+                        loadMore.text('Oops! Try Again.');
+                    },
+                    complete: function() {
+                        AJAX = false;
+                        loadMore.removeClass('activate');
+                    }
+                });
+            });
+       };
+       
+       function countItems() {
+           if (document.getElementById("txtSearch").value != "") {
+               try{
+                   var cfb = document.getElementById('hidCountFb'+ PAGE).value;
+                   var ctw = document.getElementById('hidCountTw'+ PAGE).value;
+                   if ((cfb < 10 && ctw < 10) || (cfb == 0 && ctw == 0)) {
+                       //document.getElementById('load-more').style.display = "none";
+                       $('#load-more').text("No matching result");
+                       $('#load-more').unbind("click");
+                   } else {
+                       document.getElementById('load-more').style.display = "block";
+                   }
+               } catch (err) {
+                   console.log(err);
+                   document.getElementById('load-more').style.display = "none";
+               }
+           }
+       }
+       
+       function highlighter(input) {
+           var words = input.split(" ");
+           for(var i = 0; i<words.length; i++){
+               $('div').highlight(words[i]);
+           }
+       }
+       
+       function seeMore(id, np, pn, ahref) {
+           var obj = document.getElementById(id);
+           if ((obj.innerHTML == "" && np == null) || (obj.innerHTML != "" && np != null)) {
+               ahref.innerHTML = "<img src='spinnerz.gif'/>";
+                $.ajax({
+                    url: 'fetchCmt.php',
+                    data: {
+                        'id': id,
+                        'paging-next': np,
+                        'paging-no': pn,
+                    },
+                    type: 'get',
+                    success: function(rspData) {
+                        if (pn > 1) hideObj(ahref);
+                        obj.innerHTML += rspData;
+                        highlighter('<?php echo $str;?>');
+                    },
+                    error: function(rsp) {
+                        if (pn > 1) hideObj(ahref);
+                        obj.innerHTML = "<b>No comment is available</b>";
+                    },
+                    complete: function() {
+                        ahref.innerHTML = "Hide Comment(s)";
+                        obj.style.display = "block";
+                    }
+                });
+           } else {
+               if (ahref.innerHTML == "See Comment(s)") {
+                ahref.innerHTML = "Hide Comment(s)";
+                obj.style.display = "block";
+               } else {
+                ahref.innerHTML = "See Comment(s)";
+                obj.style.display = "none";
+                }
+           }
+       }
+       function hideObj(obj) {
+           obj.style.display = "none";
+       }
+       
+       $(document).ready(function()
+{
 
-      $(function(){
-        // Set up so we handle click on the buttons
-        $('#postToWall').click(function() {
-          FB.ui(
-            {
-              method : 'feed',
-              link   : $(this).attr('data-url')
-            },
-            function (response) {
-              // If response is null the user canceled the dialog
-              if (response != null) {
-                logResponse(response);
-              }
-            }
-          );
-        });
-
-        $('#sendToFriends').click(function() {
-          FB.ui(
-            {
-              method : 'send',
-              link   : $(this).attr('data-url')
-            },
-            function (response) {
-              // If response is null the user canceled the dialog
-              if (response != null) {
-                logResponse(response);
-              }
-            }
-          );
-        });
-
-        $('#sendRequest').click(function() {
-          FB.ui(
-            {
-              method  : 'apprequests',
-              message : $(this).attr('data-message')
-            },
-            function (response) {
-              // If response is null the user canceled the dialog
-              if (response != null) {
-                logResponse(response);
-              }
-            }
-          );
-        });
-      });
+$(window).scroll(function(){
+if ($(window).scrollTop() >= ($(document).height() - $(window).height())*0.75){
+    $('#load-more').click();
+}
+}); 
+});
     </script>
 
     <!--[if IE]>
@@ -172,7 +275,7 @@ $app_name = idx($app_info, 'name', '');
       </script>
     <![endif]-->
   </head>
-  <body>
+  <body onload="highlighter('<?php echo $str;?>'); prepareAjax(); countItems();">
     <div id="fb-root"></div>
     <script type="text/javascript">
       window.fbAsyncInit = function() {
@@ -207,178 +310,113 @@ $app_name = idx($app_info, 'name', '');
         fjs.parentNode.insertBefore(js, fjs);
       }(document, 'script', 'facebook-jssdk'));
     </script>
-
-    <header class="clearfix">
-      <?php if (isset($basic)) { ?>
-      <p id="picture" style="background-image: url(https://graph.facebook.com/<?php echo he($user_id); ?>/picture?type=normal)"></p>
-
-      <div>
-        <h1>Welcome, <strong><?php echo he(idx($basic, 'name')); ?></strong></h1>
-        <p class="tagline">
-          This is your app
-          <a href="<?php echo he(idx($app_info, 'link'));?>" target="_top"><?php echo he($app_name); ?></a>
-        </p>
-
-        <div id="share-app">
-          <p>Share your app:</p>
-          <ul>
-            <li>
-              <a href="#" class="facebook-button" id="postToWall" data-url="<?php echo AppInfo::getUrl(); ?>">
-                <span class="plus">Post to Wall</span>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="facebook-button speech-bubble" id="sendToFriends" data-url="<?php echo AppInfo::getUrl(); ?>">
-                <span class="speech-bubble">Send Message</span>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="facebook-button apprequests" id="sendRequest" data-message="Test this awesome app">
-                <span class="apprequests">Send Requests</span>
-              </a>
-            </li>
-          </ul>
+    
+    <div id="divSearch" class="clearfix" align="center">
+        <div style="float: left; ">
+            <form id="frmSearch">
+            <h1>Your search here:</h1>
+                <input type="text" id="txtSearch" name="txtSearch" value="<?php echo $str; ?>"/><br/>
+                From: <input type="text" id="dateFrom" name="dateFrom" class="jdpicker"/>
+                To: <input type="text" id="dateTo" name="dateTo" class="jdpicker"/>
+                <input type="submit" value="Search"/>
+            </form>
         </div>
-      </div>
-      <?php } else { ?>
-      <div>
-        <h1>Welcome</h1>
-        <div class="fb-login-button" data-scope="user_likes,user_photos"></div>
-      </div>
-      <?php } ?>
-    </header>
+        <div style="float: right; display: none;">
+            <a id="ana" class="button-pretty" href="helpers/analytic.php">Analytics</a>
+        </div>
+    </div>
 
     <section id="get-started">
-      <p>Welcome to your Facebook app, running on <span>heroku</span>!</p>
-      <a href="https://devcenter.heroku.com/articles/facebook" target="_top" class="button">Learn How to Edit This App</a>
+      <p>Henriette's Social Search</p>
     </section>
-
+    <br/>
+    <div class="divPosts">
+        <div class="lbl" align="center">Facebook posts</div>
+        <br/>
+        <div class="posts">
+          <?php
+          $arrCsv = array();
+          if(isset($str) && $str!= "") {
+            foreach ($pubPosts as $post) {
+              // Extract the pieces of info we need from the requests above
+              $item_count++;
+              $id = idx($post, 'id');
+              $msg = idx($post, 'message');
+              $from = idx($post, 'from');
+              $name = $from['name'];
+              $uid = $from['id'];
+              $ctime = idx($post, 'created_time');
+              $link = idx($post, 'link');
+              $type = idx($post, 'type');
+              $time = timeToInterval(new DateTime($ctime));
+              // extract User info
+              $uinfo = $facebook->api('/'. $uid);
+              $username = idx($uinfo, 'username');
+              $gender = idx($uinfo, 'gender'); $gender = $gender?$gender:"Private";
+              $location = idx($uinfo, 'location');
+              $add = $location['name'] . " " . $location['street'] . " ". $location['city'] . " ". $location['country'];
+              $add = str_replace("   ", "", $add);
+              $add = $add?$add:"Private";
+              $locale = idx($uinfo, 'locale'); $locale = $locale?$locale:"Private";
+              // append *More* hyperlink
+              //$msg .= '<br/><a class="see-more" onclick="seeMore(\''. $id .'\', this)">See Comment(s)</a><br/>';
+              $msg_more = '<br/><a href="javascript:;" class="see-more" onclick="seeMore(\''. $id .'\', null, \'1\', this)">See Comment(s)</a>';
+            
+          //$a = array (  'id' => $id, 'msg' => $msg, 'type' => $type, 'created_at' => $ctime, 'uid' => $uid, 'name' => $name, 'username' => $username, 'link' => 'https://fb.com/'.$uid, 'gender' => $gender, 'location' => $add, 'locale' => $locale);
+          //$arrCsv[] = $a;
+          //$access_token = AppInfo::getToken();
+          //$request_url ="https://graph.facebook.com/".$id."/comments?" . $access_token;
+          ?>
+          <div class="post">
+            <div class="uinfo">
+                <div class="post-pic"><img src="https://graph.facebook.com/<?php echo $uid; ?>/picture"></div>
+                <a href="https://www.facebook.com/<?php echo $from['id']; ?>/"><?php echo $item_count . ") " . $name; ?>:</a><br/>
+                <label class="lblhdr">Username</label>: <?php echo $username;?><br/>
+                <label class="lblhdr">Gender</label>: <?php echo $gender;?><br/>
+                <label class="lblhdr">Location</label>: <?php echo $add;?><br/>
+                <label class="lblhdr">Language</label>: <?php echo $locale;?><br/>
+            </div>
+            <span class="time">Published <?php echo $time; ?></span><br />
+            <a class="post-link" href="<?php echo $link;?>"><?php echo $link;?></a><br /><?php echo strip_tags( $msg, '<b><a><ul><li><ol><em>' ); echo $msg_more;?>
+            <div id="<?php echo $id;?>"></div>
+          </div>
+          <?php
+            }
+          }
+          ?>
+          <input type="hidden" id="hidCountFb1" name="hidCountFb1" value="<?php echo $item_count;?>">
+        </div>
+    </div>
+    
     <?php
-      if ($user_id) {
+    if ($str != "") {
+        require('./helpers/twitter.class.php');
+        $twitter = new twitter_class();
+        $arrOutput = $twitter->getTweets(($str), 10, $since_id, $max_id, $dataPath);
+        echo $arrOutput;
+    }
     ?>
-
-    <section id="samples" class="clearfix">
-      <h1>Examples of the Facebook Graph API</h1>
-
-      <div class="list">
-        <h3>A few of your friends</h3>
-        <ul class="friends">
-          <?php
-            foreach ($friends as $friend) {
-              // Extract the pieces of info we need from the requests above
-              $id = idx($friend, 'id');
-              $name = idx($friend, 'name');
-          ?>
-          <li>
-            <a href="https://www.facebook.com/<?php echo he($id); ?>" target="_top">
-              <img src="https://graph.facebook.com/<?php echo he($id) ?>/picture?type=square" alt="<?php echo he($name); ?>">
-              <?php echo he($name); ?>
-            </a>
-          </li>
-          <?php
-            }
-          ?>
-        </ul>
-      </div>
-
-      <div class="list inline">
-        <h3>Recent photos</h3>
-        <ul class="photos">
-          <?php
-            $i = 0;
-            foreach ($photos as $photo) {
-              // Extract the pieces of info we need from the requests above
-              $id = idx($photo, 'id');
-              $picture = idx($photo, 'picture');
-              $link = idx($photo, 'link');
-
-              $class = ($i++ % 4 === 0) ? 'first-column' : '';
-          ?>
-          <li style="background-image: url(<?php echo he($picture); ?>);" class="<?php echo $class; ?>">
-            <a href="<?php echo he($link); ?>" target="_top"></a>
-          </li>
-          <?php
-            }
-          ?>
-        </ul>
-      </div>
-
-      <div class="list">
-        <h3>Things you like</h3>
-        <ul class="things">
-          <?php
-            foreach ($likes as $like) {
-              // Extract the pieces of info we need from the requests above
-              $id = idx($like, 'id');
-              $item = idx($like, 'name');
-
-              // This display's the object that the user liked as a link to
-              // that object's page.
-          ?>
-          <li>
-            <a href="https://www.facebook.com/<?php echo he($id); ?>" target="_top">
-              <img src="https://graph.facebook.com/<?php echo he($id) ?>/picture?type=square" alt="<?php echo he($item); ?>">
-              <?php echo he($item); ?>
-            </a>
-          </li>
-          <?php
-            }
-          ?>
-        </ul>
-      </div>
-
-      <div class="list">
-        <h3>Friends using this app</h3>
-        <ul class="friends">
-          <?php
-            foreach ($app_using_friends as $auf) {
-              // Extract the pieces of info we need from the requests above
-              $id = idx($auf, 'uid');
-              $name = idx($auf, 'name');
-          ?>
-          <li>
-            <a href="https://www.facebook.com/<?php echo he($id); ?>" target="_top">
-              <img src="https://graph.facebook.com/<?php echo he($id) ?>/picture?type=square" alt="<?php echo he($name); ?>">
-              <?php echo he($name); ?>
-            </a>
-          </li>
-          <?php
-            }
-          ?>
-        </ul>
-      </div>
-    </section>
-
-    <?php
-      }
-    ?>
-
-    <section id="guides" class="clearfix">
-      <h1>Learn More About Heroku &amp; Facebook Apps</h1>
-      <ul>
-        <li>
-          <a href="https://www.heroku.com/?utm_source=facebook&utm_medium=app&utm_campaign=fb_integration" target="_top" class="icon heroku">Heroku</a>
-          <p>Learn more about <a href="https://www.heroku.com/?utm_source=facebook&utm_medium=app&utm_campaign=fb_integration" target="_top">Heroku</a>, or read developer docs in the Heroku <a href="https://devcenter.heroku.com/" target="_top">Dev Center</a>.</p>
-        </li>
-        <li>
-          <a href="https://developers.facebook.com/docs/guides/web/" target="_top" class="icon websites">Websites</a>
-          <p>
-            Drive growth and engagement on your site with
-            Facebook Login and Social Plugins.
-          </p>
-        </li>
-        <li>
-          <a href="https://developers.facebook.com/docs/guides/mobile/" target="_top" class="icon mobile-apps">Mobile Apps</a>
-          <p>
-            Integrate with our core experience by building apps
-            that operate within Facebook.
-          </p>
-        </li>
-        <li>
-          <a href="https://developers.facebook.com/docs/guides/canvas/" target="_top" class="icon apps-on-facebook">Apps on Facebook</a>
-          <p>Let users find and connect to their friends in mobile apps and games.</p>
-        </li>
-      </ul>
-    </section>
+    
+    <div style='display: <?php echo ($str!="" && 1!=1)?"":"none;"; ?>'>
+        <form id="frmPaging" name="frmPaging" method="post">
+            <input type="hidden" id="hidSince" name="hidSince" value="" />
+            <input type="hidden" id="hidMax" name="hidMax" value="" />
+            <input type="hidden" id="hidLink" name="hidLink" value="" />
+            <input type="hidden" id="hidLinkNext" name="hidLinkNext" value="<?php echo $paging['next'];?>" />
+            <input type="submit" onclick="document.getElementById('hidLink').value = ('<?php echo $paging['previous'];?>');document.getElementById('hidSince').value = document.getElementById('hidSinceId').value;" value="Newer" />
+            <input type="submit" onclick="document.getElementById('hidLink').value = ('<?php echo $paging['next'];?>');document.getElementById('hidMax').value = document.getElementById('hidMaxId').value;" value="Older" />
+        </form>
+    </div>
+    
+    <!-- Posts go inside this DIV -->
+    <div id="ajax-posts" class="div-fb-post">
+    </div>
+    
+    <!-- Widget XHTML Starts Here -->
+    <div id="posts-container" style='display: <?php echo $str!=""?"":"none;"; ?>'>
+        <!-- Load More "Link" -->
+        <div id="load-more">Load More</div>
+    </div>
+    <!-- Widget XHTML Ends Here -->
   </body>
 </html>
