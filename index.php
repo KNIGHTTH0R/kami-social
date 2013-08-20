@@ -321,7 +321,7 @@ if ($(window).scrollTop() >= ($(document).height() - $(window).height())*0.75){
                 <input type="submit" value="Search"/>
             </form>
         </div>
-        <div style="float: right; display: none;">
+        <div style="float: right;">
             <a id="ana" class="button-pretty" href="helpers/analytic.php">Analytics</a>
         </div>
     </div>
