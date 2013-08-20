@@ -370,7 +370,7 @@ if ($(window).scrollTop() >= ($(document).height() - $(window).height())*0.75){
           <div class="post">
             <div class="uinfo">
                 <div class="post-pic"><img src="https://graph.facebook.com/<?php echo $uid; ?>/picture"></div>
-                <a href="https://www.facebook.com/<?php echo $from['id']; ?>/"><?php echo $item_count . ") " . $name; ?>:</a><br/>
+                <a href="https://www.facebook.com/<?php echo $from['id']; ?>/posts/<?php echo $id; ?>"><?php echo $item_count . ") " . $name; ?>:</a><br/>
                 <label class="lblhdr">Username</label>: <?php echo $username;?><br/>
                 <label class="lblhdr">Gender</label>: <?php echo $gender;?><br/>
                 <label class="lblhdr">Location</label>: <?php echo $add;?><br/>
