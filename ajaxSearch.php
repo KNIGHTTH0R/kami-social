@@ -117,7 +117,7 @@ if (isset($str) && $str!="") {
           $output.='<div class="post">';
           $output.='<div class="uinfo">';
           $output.='<div class="post-pic"><img src="https://graph.facebook.com/'.$uid.'/picture"></div>';
-          $output.='<a href="https://www.facebook.com/'.$id.'">'.(($_POST['page']-1)* 10 + $item_count) . ') ' .$from['name'].':</a><br/>';
+          $output.='<a  target="_blank" href="https://www.facebook.com/'.$id.'">'.(($_POST['page']-1)* 10 + $item_count) . ') ' .$from['name'].':</a><br/>';
           $output.='<label class="lblhdr">Username</label>: '.$username.'<br/>';
           $output.='<label class="lblhdr">Gender</label>: '. $gender .'<br/>';
           $output.='<label class="lblhdr">Location</label>: '.$add.'<br/>';

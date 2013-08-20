@@ -67,7 +67,7 @@ try{
     if(!isset($link)) {
         // Until: Date_of_results < Until_date
         // Since: Date_of_results > since_date (latest till since_date)
-        $link = '/search?limit=10&type=post&fields=id,message,from,link,picture,type&q=' . urlencode($str) . $unix_from . $unix_to;
+        $link = '/search?lang=vi&limit=10&type=post&fields=id,message,from,link,picture,type&q=' . urlencode($str) . $unix_from . $unix_to;
     } else {
     }
     $data = ($facebook->api($link));
@@ -370,7 +370,7 @@ if ($(window).scrollTop() >= ($(document).height() - $(window).height())*0.75){
           <div class="post">
             <div class="uinfo">
                 <div class="post-pic"><img src="https://graph.facebook.com/<?php echo $uid; ?>/picture"></div>
-                <a href="https://www.facebook.com/<?php echo $id; ?>"><?php echo $item_count . ") " . $name; ?>:</a><br/>
+                <a target='_blank' href="https://www.facebook.com/<?php echo $id; ?>"><?php echo $item_count . ") " . $name; ?>:</a><br/>
                 <label class="lblhdr">Username</label>: <?php echo $username;?><br/>
                 <label class="lblhdr">Gender</label>: <?php echo $gender;?><br/>
                 <label class="lblhdr">Location</label>: <?php echo $add;?><br/>
