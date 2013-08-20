@@ -350,7 +350,7 @@ if ($(window).scrollTop() >= ($(document).height() - $(window).height())*0.75){
               $type = idx($post, 'type');
               $time = timeToInterval(new DateTime($ctime));
               // extract User info
-              $uinfo = $facebook->api('/'. $uid) . '?format=json';
+              $uinfo = $facebook->api('/'. $uid);
               $username = idx($uinfo, 'username');
               $gender = idx($uinfo, 'gender'); $gender = $gender?$gender:"Private";
               $location = idx($uinfo, 'location');
